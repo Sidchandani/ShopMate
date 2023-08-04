@@ -1,0 +1,171 @@
+{% extends 'shop/basic.html' %}
+
+{% block title%} {{product.product_name}} - ShopMate{% endblock %}
+{% block body %}
+<div class="container my-4">
+    <div class="row">
+        <!-- col of 4  -->
+        <div class="col-md-4">
+
+            <div class="row">
+                <img src="/media/{{product.image}}" width="373px" height="385px">
+            </div>
+
+            <div class="row ml-5 my-3">
+                <span id="divpr{{product.id}}" class="divpr">
+                    <button id="pr{{product.id}}" class="btn btn-primary cart mx-2" onclick="AddtoCart('pr{{product.id}}')">Add To Cart</button>
+                  </span>
+                <button class="btn btn-primary mx-2" onclick="buynow('pr{{product.id}}')">Buy Now</button>
+    
+                
+                
+            </div>
+
+        </div>
+        
+        <!-- Same row but col of 8 -->
+        <div class="col-md-8">
+            <h1 id="namepr{{product.id}}" >{{product.product_name}}</h1>
+            <h3 class="display-6"><b>Rs. <span id="pricepr{{product.id}}">{{product.price}}</span> </b></h3>
+            <hr>
+            <h4 class="display-6">{{product.desc}}</h4>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %} 
+<script >
+
+function convertToInt(str) {
+ const cleanedStr = str.split(",").join("");
+ const num = parseInt(cleanedStr, 10);
+ return num;
+}
+
+     
+if (localStorage.getItem('cart') == null) {
+   var cart = {};
+} else {
+   cart = JSON.parse(localStorage.getItem('cart'));
+   updateCart(cart);
+}
+
+function buynow(id){
+  var idstr = id.toString();   
+  if (idstr in cart){
+  }
+  else{
+    AddtoCart(idstr);
+  }
+  document.location.href="/shop/checkout";
+
+
+}
+
+function AddtoCart(id){ 
+    var idstr = id.toString();   
+
+   if (cart[idstr] != undefined) {
+       cart[idstr][0] = cart[idstr][0] + 1;
+   } else {
+     let qty=1;
+     let name=document.getElementById('name'+idstr).innerHTML;
+     let price=document.getElementById('price'+idstr).innerHTML;
+     price = convertToInt(price);
+
+     // name of prod (at localstorage) in cart is required for checkout page.......
+     cart[idstr] = [qty,name,price];
+   }
+   updateCart(cart);
+   
+};
+
+
+function getsum(cart){
+ var sum=0;
+ for (var key in cart) { sum=sum+cart[key][0]; }
+ return sum;
+}
+
+
+//UpdatePopover func
+function updatePopover(cart)
+{
+   var popStr = "";
+   popStr = popStr + "<h5> Cart for your items in my shopping cart </h5><div class='mx-2 my-2'>";
+   var i = 1;
+   for (var item in cart){
+         popStr = popStr + "<b>" + i + "</b>. ";
+         popStr = popStr + cart[item][1].slice(0,19) + "... Qty: " + cart[item][0] + '<br>';
+         i = i+1;
+   }
+   popStr=popStr+"</div> <a href='/shop/checkout'><button class='btn btn-primary mx-3' id='checkout'> Checkout </button></a>"
+   +"<button class='btn btn-primary' onclick='clearCart()' id = 'clearCart' > Clear Cart </button>";
+   document.getElementById('popcart').setAttribute('data-content', popStr);
+   $('#popcart').popover('show'); // we will show popcart when the cart has atleast 1 item otherwise hidden (by default)
+}
+
+// UpdateCart func : 
+function updateCart(cart) {
+   for (var item in cart) {
+     try{
+            if(cart[item][0]>0){
+            document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "' class='btn btn-primary minus'>-</button> <span id='val" + item + "''>" + cart[item][0] + "</span> <button id='plus" + item + "' class='btn btn-primary plus'> + </button>";
+            }
+    }
+    catch(TypeError){ }
+  }
+   localStorage.setItem('cart', JSON.stringify(cart));
+   document.getElementById('cart').innerHTML = getsum(cart);
+
+   updatePopover(cart);
+}
+
+$('.divpr').on("click", "button.minus", function() {
+   a = this.id.slice(5, );
+   cart[a][0] = cart[a][0] - 1;
+   if (cart[a][0]<=0){
+     delete(cart[a]);
+     document.getElementById('div' + a).innerHTML = "<button id='" + a + "' class='btn btn-primary cart'>Add To Cart</button>";
+     updateCart(cart);
+     location.reload();
+   }
+   else{
+
+     document.getElementById('val' + a).innerHTML = cart[a][0];
+   }
+
+   // update cart so that it can udate cart at localstorage and then call UpdatePopover
+   updateCart(cart);
+});
+$('.divpr').on("click", "button.plus", function() {
+   a = this.id.slice(4, );
+   cart[a][0] = cart[a][0] + 1;
+   document.getElementById('val' + a).innerHTML = cart[a][0];
+   updateCart(cart);
+});
+
+
+function clearCart() {
+ cart = JSON.parse(localStorage.getItem('cart'));
+ for (var item in cart) {
+   // when we hit clearcart button then instead of '- val +' restore the 'Add to cart' button for the items that are in cart..
+   // So, select 'divpr7' 
+     document.getElementById('div' + item).innerHTML = '<button id="' + item + '" class="btn btn-primary cart">Add To Cart</button>'
+ }
+ localStorage.clear();
+ cart = {};
+ updateCart(cart);
+ location.reload();
+}
+
+
+
+
+</script>
+
+{% endblock %}
+
