@@ -3,8 +3,9 @@
 • Firstly, Click on the **drop-down** menu of ***Code*** button (in green color) and then click on **Download ZIP**. <br/>
 • Secondly, Unzip it and then install django into your system by executing the command **pip install django**. <br/>
 • **Note** : It is assumed that ***Python*** is already installed in your system. <br/>
-• Now run ***python manage.py runserver*** command in your terminal. Make sure that you current directory(\ShopMate) contains *'manage.py'* file. <br/>
-
+• Now run two commands command in your terminal. Make sure that you current directory(\ShopMate) contains *'manage.py'* file. <br/>
+1) ***python manage.py migrate*** <br/>
+2) ***python manage.py runserver*** .<br/>
 ##
 #### Description:
 • In this project, I have built a fully functional ***web app*** that allows users to Buy their desired products, Add them to carts, Proceed to checkout, and Place orders.<br/>
